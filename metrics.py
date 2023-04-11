@@ -2,11 +2,10 @@
 # -*- coding: utf-8 -*-
 # Filename : _metrics.py
 # Author : Tuhin Mallick
-
 # Import necessary libraries
-
 import sys
-from abc import ABC, abstractmethod
+from abc import ABC
+from abc import abstractmethod
 
 import numpy as np
 import pandas as pd

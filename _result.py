@@ -8,12 +8,13 @@
 # Author : Tuhin Mallick
 # These lines specify the filename and author of the script.
 
-import pandas as pd
 import numpy as np
+import pandas as pd
+
+from ._metrics import ForecastEvaluation
 
 # These lines import the pandas and numpy libraries.
 
-from ._metrics import ForecastEvaluation
 
 # This line imports the ForecastEvaluation class from the _metrics module in the current package.
 

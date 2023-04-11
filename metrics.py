@@ -4,8 +4,7 @@
 # Author : Tuhin Mallick
 # Import necessary libraries
 import sys
-from abc import ABC
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
 import numpy as np
 import pandas as pd

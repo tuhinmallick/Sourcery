@@ -15,6 +15,7 @@ from sklearn import metrics as skmetrics
 
 
 class AbstractMetric(ABC):
+
     @staticmethod
     @abstractmethod
     def __call__(pred, label, weights=None):
@@ -70,8 +71,7 @@ def normalised_quantile_loss(y_pred, y, quantile, weights=None):
     prediction_underflow = y - y_pred
     # Compute the weighted errors
     weighted_errors = quantile * np.maximum(prediction_underflow, 0.0) + (
-        1.0 - quantile
-    ) * np.maximum(-prediction_underflow, 0.0)
+        1.0 - quantile) * np.maximum(-prediction_underflow, 0.0)
     # Check if weights are provided
     if weights is not None and weights.size:
         # Apply the weights
@@ -147,11 +147,8 @@ class ND(AbstractMetric):
         """
         diff = np.abs(labels - preds)
 
-        return (
-            np.sum(diff * weights) / np.sum(np.abs(labels) * weights)
-            if weights.size
-            else np.sum(diff) / np.sum(np.abs(labels))
-        )
+        return (np.sum(diff * weights) / np.sum(np.abs(labels) * weights)
+                if weights.size else np.sum(diff) / np.sum(np.abs(labels)))
 
 
 class MAE(AbstractMetric):
@@ -199,9 +196,9 @@ class MSE(AbstractMetric):
         if not weights.size:
             weights = None
         if return_individual:
-            return np.average((preds - labels) ** 2, weights=weights, axis=0)
+            return np.average((preds - labels)**2, weights=weights, axis=0)
         else:
-            return np.average((preds - labels) ** 2, weights=weights)
+            return np.average((preds - labels)**2, weights=weights)
 
 
 class RMSE(AbstractMetric):
@@ -222,7 +219,7 @@ class RMSE(AbstractMetric):
         """
         if not weights.size:
             weights = None
-        return np.sqrt(np.average((preds - labels) ** 2, weights=weights))
+        return np.sqrt(np.average((preds - labels)**2, weights=weights))
 
 
 class R_Squared(AbstractMetric):
@@ -243,11 +240,9 @@ class R_Squared(AbstractMetric):
             float or np.ndarray: The R-squared metric value, or individual R-squared values if return_individual is True.
         """
         if not weights.size:
-            return (
-                skmetrics.r2_score(preds, labels, multioutput="raw_values")
-                if return_individual
-                else skmetrics.r2_score(preds, labels)
-            )
+            return (skmetrics.r2_score(preds, labels, multioutput="raw_values")
+                    if return_individual else skmetrics.r2_score(
+                        preds, labels))
         values = skmetrics.r2_score(preds, labels, multioutput="raw_values")
         if return_individual:
             return values * weights
@@ -273,33 +268,19 @@ class WMSMAPE(AbstractMetric):
         """
         if weights.size:
             if return_individual:
-                return (
-                    2
-                    * weights
-                    * np.abs(preds - labels)
-                    / (np.maximum(labels, 1) + np.abs(preds))
-                )
+                return (2 * weights * np.abs(preds - labels) /
+                        (np.maximum(labels, 1) + np.abs(preds)))
             else:
-                return (
-                    100.0
-                    / np.sum(weights)
-                    * np.sum(
-                        2
-                        * weights
-                        * np.abs(preds - labels)
-                        / (np.maximum(labels, 1) + np.abs(preds))
-                    )
-                )
+                return (100.0 / np.sum(weights) *
+                        np.sum(2 * weights * np.abs(preds - labels) /
+                               (np.maximum(labels, 1) + np.abs(preds))))
         if return_individual:
-            return 2 * np.abs(preds - labels) / (np.maximum(labels, 1) + np.abs(preds))
+            return 2 * np.abs(preds - labels) / (np.maximum(labels, 1) +
+                                                 np.abs(preds))
         else:
-            return (
-                100.0
-                / len(labels)
-                * np.sum(
-                    2 * np.abs(preds - labels) / (np.maximum(labels, 1) + np.abs(preds))
-                )
-            )
+            return (100.0 / len(labels) *
+                    np.sum(2 * np.abs(preds - labels) /
+                           (np.maximum(labels, 1) + np.abs(preds))))
 
 
 class Accuracy(AbstractMetric):
@@ -320,13 +301,13 @@ class Accuracy(AbstractMetric):
         """
         try:
             if weights is not None:
-                raise NotImplementedError("Weighted accuracy is not supported.")
+                raise NotImplementedError(
+                    "Weighted accuracy is not supported.")
             # Handle division by zero
             if (np.array(y_true) == 0).sum() > 0:
                 y_true = np.where(y_true == 0, 1e-5, y_true)
             acc = 1 - np.mean(
-                np.clip(np.abs((y_true - y_pred) / y_true), a_min=0, a_max=1)
-            )
+                np.clip(np.abs((y_true - y_pred) / y_true), a_min=0, a_max=1))
             acc_percent = acc * 100
         except Exception as e:
             acc_percent = 0
@@ -357,8 +338,9 @@ class MAPE(AbstractMetric):
             if (np.array(y_true) == 0).sum() > 0:
                 y_true = np.where(y_true == 0, 1e-5, y_true)
                 error_percent = np.mean(
-                    np.clip(np.abs((y_true - y_pred) / y_true), a_min=0, a_max=1)
-                )
+                    np.clip(np.abs((y_true - y_pred) / y_true),
+                            a_min=0,
+                            a_max=1))
             else:
                 error_percent = np.mean(np.abs((y_true - y_pred) / y_true))
         except Exception as e:
@@ -383,9 +365,9 @@ class MAE(AbstractMetric):
         Returns:
             float: The MAE metric value.
         """
-        return skmetrics.mean_absolute_error(
-            y_true=y_true, y_pred=y_pred, sample_weight=weights
-        )
+        return skmetrics.mean_absolute_error(y_true=y_true,
+                                             y_pred=y_pred,
+                                             sample_weight=weights)
 
 
 class RMSE(AbstractMetric):
@@ -405,10 +387,9 @@ class RMSE(AbstractMetric):
             float: The RMSE metric value.
         """
         return np.sqrt(
-            skmetrics.mean_squared_error(
-                y_true=y_true, y_pred=y_pred, sample_weight=weights
-            )
-        )
+            skmetrics.mean_squared_error(y_true=y_true,
+                                         y_pred=y_pred,
+                                         sample_weight=weights))
 
 
 class DirectionalSymmetry(AbstractMetric):
@@ -434,8 +415,7 @@ class DirectionalSymmetry(AbstractMetric):
         try:
             if weights is not None:
                 raise NotImplementedError(
-                    "Weighted directional symmetry is not supported."
-                )
+                    "Weighted directional symmetry is not supported.")
             # Check if tolerance is valid
             if tolerance < 0:
                 raise ValueError("Tolerance cannot be less than zero!")
@@ -457,9 +437,9 @@ class DirectionalSymmetry(AbstractMetric):
                 pred_diff[tmp.abs() < tolerance] = 0
             # Core formula for directional symmetry
             d = (true_diff * pred_diff) > 0
-            d[
-                (true_diff == 0) & (pred_diff == 0)
-            ] = 1  # Case of plateau for both y_true and y_pred
+            d[(true_diff == 0)
+              & (pred_diff == 0
+                 )] = 1  # Case of plateau for both y_true and y_pred
             dsymm = np.round(100 * d.sum() / len(d), 2)
         except Exception as e:
             dsymm = 0

@@ -12,7 +12,6 @@ from ._metrics import ForecastEvaluation
 
 # These lines import the pandas and numpy libraries.
 
-
 # This line imports the ForecastEvaluation class from the _metrics module in the current package.
 
 
@@ -111,14 +110,14 @@ def model_evaluation(
         # These lines extract model information from the result and append it to the respective lists.
 
         train_result = evaluation(
-            np.array(y_train).flatten(), np.array(result["y_train_pred"]).flatten()
-        )
+            np.array(y_train).flatten(),
+            np.array(result["y_train_pred"]).flatten())
         val_result = evaluation(
-            np.array(y_val).flatten(), np.array(result["y_val_pred"]).flatten()
-        )
+            np.array(y_val).flatten(),
+            np.array(result["y_val_pred"]).flatten())
         test_result = evaluation(
-            np.array(y_test).flatten(), np.array(result["y_test_pred"]).flatten()
-        )
+            np.array(y_test).flatten(),
+            np.array(result["y_test_pred"]).flatten())
         # These lines evaluate the model on training, validation and test data using the evaluation instance.
 
         train_acc.append(train_result[0])
@@ -164,8 +163,7 @@ def model_evaluation(
                 test_mae,
                 test_rmse,
                 test_dsymm,
-            )
-        )
+            ))
         # This block of code creates a list of tuples by zipping together all the lists containing model information and evaluation metrics.
 
         result = pd.DataFrame(

@@ -113,15 +113,13 @@ def model_evaluation(
         # These lines extract model information from the result and append it to the respective lists.
 
         train_result = evaluation(
-            np.array(y_train).flatten(), np.array(
-                result["y_train_pred"]).flatten()
+            np.array(y_train).flatten(), np.array(result["y_train_pred"]).flatten()
         )
         val_result = evaluation(
             np.array(y_val).flatten(), np.array(result["y_val_pred"]).flatten()
         )
         test_result = evaluation(
-            np.array(y_test).flatten(), np.array(
-                result["y_test_pred"]).flatten()
+            np.array(y_test).flatten(), np.array(result["y_test_pred"]).flatten()
         )
         # These lines evaluate the model on training, validation and test data using the evaluation instance.
 

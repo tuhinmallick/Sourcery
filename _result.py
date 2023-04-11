@@ -96,7 +96,7 @@ def model_evaluation(
         category,
         algorithm,
         dataset,
-    ) = ([] for i in range(19))
+    ) = ([] for _ in range(19))
     # This block of code initializes 19 lists to store various evaluation metrics for training,
     # validation and test data as well as model information.
 

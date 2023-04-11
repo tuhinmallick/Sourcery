@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
 # This line specifies the interpreter to be used to execute the script.
-
 # -*- coding: utf-8 -*-
 # This line specifies the encoding of the script.
-
 # Filename : _metrics.py
 # Author : Tuhin Mallick
 # These lines specify the filename and author of the script.
-
 import numpy as np
 import pandas as pd
 

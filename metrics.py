@@ -20,6 +20,7 @@ class AbstractMetric(ABC):
     def __call__(pred, label, weights=None):
         pass
 
+
 # Define a SMAPE class that inherits from the AbstractMetric class
 
 
@@ -45,6 +46,7 @@ class SMAPE(AbstractMetric):
             2 * np.abs(preds - labels) / (np.abs(labels) + np.abs(preds)),
             weights=weights,
         )
+
 
 # Define a function to compute the Normalised Quantile Loss
 
@@ -122,6 +124,7 @@ class P90_loss(AbstractMetric):
             float: The P90 quantile loss.
         """
         return normalised_quantile_loss(labels, preds, 0.9, weights)
+
 
 # Normalized Deviation
 
@@ -294,8 +297,7 @@ class WMSMAPE(AbstractMetric):
                 100.0
                 / len(labels)
                 * np.sum(
-                    2 * np.abs(preds - labels) /
-                    (np.maximum(labels, 1) + np.abs(preds))
+                    2 * np.abs(preds - labels) / (np.maximum(labels, 1) + np.abs(preds))
                 )
             )
 
@@ -318,8 +320,7 @@ class Accuracy(AbstractMetric):
         """
         try:
             if weights is not None:
-                raise NotImplementedError(
-                    "Weighted accuracy is not supported.")
+                raise NotImplementedError("Weighted accuracy is not supported.")
             # Handle division by zero
             if (np.array(y_true) == 0).sum() > 0:
                 y_true = np.where(y_true == 0, 1e-5, y_true)
@@ -352,12 +353,11 @@ class MAPE(AbstractMetric):
         try:
             if weights is not None:
                 raise NotImplementedError("Weighted MAPE is not supported.")
-             # Handle division by zero
+            # Handle division by zero
             if (np.array(y_true) == 0).sum() > 0:
                 y_true = np.where(y_true == 0, 1e-5, y_true)
                 error_percent = np.mean(
-                    np.clip(np.abs((y_true - y_pred) / y_true),
-                            a_min=0, a_max=1)
+                    np.clip(np.abs((y_true - y_pred) / y_true), a_min=0, a_max=1)
                 )
             else:
                 error_percent = np.mean(np.abs((y_true - y_pred) / y_true))

@@ -12,6 +12,8 @@ from sklearn import metrics as skmetrics
 from abc import ABC, abstractmethod
 
 # Define an abstract class for custom metric implementations
+
+
 class AbstractMetric(ABC):
     @staticmethod
     @abstractmethod
@@ -19,6 +21,8 @@ class AbstractMetric(ABC):
         pass
 
 # Define a SMAPE class that inherits from the AbstractMetric class
+
+
 class SMAPE(AbstractMetric):
     name = "SMAPE"
 
@@ -26,12 +30,12 @@ class SMAPE(AbstractMetric):
     def __call__(preds, labels, weights=None):
         """
         Calculate the Symmetric Mean Absolute Percentage Error (SMAPE) of the predictions.
-        
+
         Args:
             preds (np.ndarray): Predicted values.
             labels (np.ndarray): True values.
             weights (np.ndarray): Weights for each sample, default is None.
-        
+
         Returns:
             float: The SMAPE metric value.
         """
@@ -43,18 +47,20 @@ class SMAPE(AbstractMetric):
         )
 
 # Define a function to compute the Normalised Quantile Loss
+
+
 def normalised_quantile_loss(y_pred, y, quantile, weights=None):
     """
     Compute the normalised quantile loss.
-    
+
     Implementation of the q-Risk function from https://arxiv.org/pdf/1912.09363.pdf.
-    
+
     Args:
         y_pred (np.ndarray): Predicted values.
         y (np.ndarray): True values.
         quantile (float): Quantile value (between 0 and 1).
         weights (np.ndarray, optional): Weights for each sample, default is None.
-    
+
     Returns:
         float: The normalised quantile loss.
     """
@@ -63,19 +69,19 @@ def normalised_quantile_loss(y_pred, y, quantile, weights=None):
     # Compute the weighted errors
     weighted_errors = quantile * np.maximum(prediction_underflow, 0.0) + (
         1.0 - quantile
-    ) * np.maximum(-prediction_underflow, 0.0) 
+    ) * np.maximum(-prediction_underflow, 0.0)
     # Check if weights are provided
     if weights is not None and weights.size:
         # Apply the weights
         weighted_errors = weighted_errors * weights
         # Compute the normaliser
         y = y * weights
-    # Compute the normalised quantile loss 
+    # Compute the normalised quantile loss
     loss = weighted_errors.sum()
     # Sum of the absolute values of the true values
-    normaliser = abs(y).sum() 
+    normaliser = abs(y).sum()
     # Return the normalised quantile loss
-    return 2 * loss / normaliser # Normalised Quantile Loss
+    return 2 * loss / normaliser  # Normalised Quantile Loss
 
 
 class P50_loss(AbstractMetric):
@@ -118,6 +124,8 @@ class P90_loss(AbstractMetric):
         return normalised_quantile_loss(labels, preds, 0.9, weights)
 
 # Normalized Deviation
+
+
 class ND(AbstractMetric):
     name = "ND"
 
@@ -141,6 +149,7 @@ class ND(AbstractMetric):
             if weights.size
             else np.sum(diff) / np.sum(np.abs(labels))
         )
+
 
 class MAE(AbstractMetric):
     name = "MAE"
@@ -166,6 +175,7 @@ class MAE(AbstractMetric):
         else:
             return np.average(np.abs(preds - labels), weights=weights)
 
+
 class MSE(AbstractMetric):
     name = "MSE"
 
@@ -190,6 +200,7 @@ class MSE(AbstractMetric):
         else:
             return np.average((preds - labels) ** 2, weights=weights)
 
+
 class RMSE(AbstractMetric):
     name = "RMSE"
 
@@ -209,6 +220,7 @@ class RMSE(AbstractMetric):
         if not weights.size:
             weights = None
         return np.sqrt(np.average((preds - labels) ** 2, weights=weights))
+
 
 class R_Squared(AbstractMetric):
     name = "R_Squared"
@@ -237,6 +249,7 @@ class R_Squared(AbstractMetric):
         if return_individual:
             return values * weights
         return np.sum(values * weights) / np.sum(weights)
+
 
 class WMSMAPE(AbstractMetric):
     name = "WMSMAPE"
@@ -281,9 +294,12 @@ class WMSMAPE(AbstractMetric):
                 100.0
                 / len(labels)
                 * np.sum(
-                    2 * np.abs(preds - labels) / (np.maximum(labels, 1) + np.abs(preds))
+                    2 * np.abs(preds - labels) /
+                    (np.maximum(labels, 1) + np.abs(preds))
                 )
             )
+
+
 class Accuracy(AbstractMetric):
     name = "Accuracy"
 
@@ -302,7 +318,8 @@ class Accuracy(AbstractMetric):
         """
         try:
             if weights is not None:
-                raise NotImplementedError("Weighted accuracy is not supported.")
+                raise NotImplementedError(
+                    "Weighted accuracy is not supported.")
             # Handle division by zero
             if (np.array(y_true) == 0).sum() > 0:
                 y_true = np.where(y_true == 0, 1e-5, y_true)
@@ -314,6 +331,7 @@ class Accuracy(AbstractMetric):
             acc_percent = 0
             print(f"ERROR: calculating accuracy - {str(e)}")
         return acc_percent
+
 
 class MAPE(AbstractMetric):
     name = "MAPE"
@@ -338,7 +356,8 @@ class MAPE(AbstractMetric):
             if (np.array(y_true) == 0).sum() > 0:
                 y_true = np.where(y_true == 0, 1e-5, y_true)
                 error_percent = np.mean(
-                    np.clip(np.abs((y_true - y_pred) / y_true), a_min=0, a_max=1)
+                    np.clip(np.abs((y_true - y_pred) / y_true),
+                            a_min=0, a_max=1)
                 )
             else:
                 error_percent = np.mean(np.abs((y_true - y_pred) / y_true))
@@ -346,6 +365,7 @@ class MAPE(AbstractMetric):
             error_percent = 100
             print(f"ERROR: calculating MAPE - {str(e)}")
         return error_percent
+
 
 class MAE(AbstractMetric):
     name = "MAE"
@@ -366,6 +386,7 @@ class MAE(AbstractMetric):
         return skmetrics.mean_absolute_error(
             y_true=y_true, y_pred=y_pred, sample_weight=weights
         )
+
 
 class RMSE(AbstractMetric):
     name = "RMSE"
@@ -389,6 +410,7 @@ class RMSE(AbstractMetric):
             )
         )
 
+
 class DirectionalSymmetry(AbstractMetric):
     name = "DirectionalSymmetry"
 
@@ -402,7 +424,7 @@ class DirectionalSymmetry(AbstractMetric):
             y_true (np.ndarray): True values.
             tolerance (int, optional): Tolerance level for percentage change. Default is 1.
             weights (np.ndarray): Weights for each sample, not supported in this metric.
-        
+
         Returns:
             float: The directional symmetry metric value in percentage.
         """

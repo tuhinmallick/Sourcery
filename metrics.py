@@ -136,10 +136,11 @@ class ND(AbstractMetric):
         """
         diff = np.abs(labels - preds)
 
-        if not weights.size:
-            return np.sum(diff) / np.sum(np.abs(labels))
-        else:
-            return np.sum(diff * weights) / np.sum(np.abs(labels) * weights)
+        return (
+            np.sum(diff * weights) / np.sum(np.abs(labels) * weights)
+            if weights.size
+            else np.sum(diff) / np.sum(np.abs(labels))
+        )
 
 class MAE(AbstractMetric):
     name = "MAE"
@@ -227,14 +228,15 @@ class R_Squared(AbstractMetric):
             float or np.ndarray: The R-squared metric value, or individual R-squared values if return_individual is True.
         """
         if not weights.size:
-            if return_individual:
-                return skmetrics.r2_score(preds, labels, multioutput="raw_values")
-            return skmetrics.r2_score(preds, labels)
-        else:
-            values = skmetrics.r2_score(preds, labels, multioutput="raw_values")
-            if return_individual:
-                return values * weights
-            return np.sum(values * weights) / np.sum(weights)
+            return (
+                skmetrics.r2_score(preds, labels, multioutput="raw_values")
+                if return_individual
+                else skmetrics.r2_score(preds, labels)
+            )
+        values = skmetrics.r2_score(preds, labels, multioutput="raw_values")
+        if return_individual:
+            return values * weights
+        return np.sum(values * weights) / np.sum(weights)
 
 class WMSMAPE(AbstractMetric):
     name = "WMSMAPE"
@@ -304,14 +306,9 @@ class Accuracy(AbstractMetric):
             # Handle division by zero
             if (np.array(y_true) == 0).sum() > 0:
                 y_true = np.where(y_true == 0, 1e-5, y_true)
-                acc = 1 - np.mean(
-                    np.clip(np.abs((y_true - y_pred) / y_true), a_min=0, a_max=1)
-                )
-            else:
-                # Clip in order to restrict the accuracy percent between 0 and 100
-                acc = 1 - np.mean(
-                    np.clip(np.abs((y_true - y_pred) / y_true), a_min=0, a_max=1)
-                )
+            acc = 1 - np.mean(
+                np.clip(np.abs((y_true - y_pred) / y_true), a_min=0, a_max=1)
+            )
             acc_percent = acc * 100
         except Exception as e:
             acc_percent = 0
